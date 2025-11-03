@@ -1,0 +1,17 @@
+# Environments
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Packaging / build artifacts
+dist/
+build/
+*.egg-info/
+
+# IDE settings
+.idea/
+.vscode/
+*.swp

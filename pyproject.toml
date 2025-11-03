@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-agriculture"
+version = "0.1.0"
+description = "Python toolkit starter for SmartAgriculture analytics."
+authors = [{ name = "SmartAgriculture Team" }]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+smart-agriculture = "smart_agriculture.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
