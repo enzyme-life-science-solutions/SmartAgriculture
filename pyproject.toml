@@ -9,10 +9,14 @@ description = "Python toolkit starter for SmartAgriculture analytics."
 authors = [{ name = "SmartAgriculture Team" }]
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["google-cloud-storage"]
 
 [project.scripts]
 smart-agriculture = "smart_agriculture.cli:main"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["smart_agriculture", "smart_agriculture.pipelines"]
+
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
