@@ -156,3 +156,7 @@ services/
             ├── __init__.py
             └── test_main.py
 ```
+
+## Data Citation Style
+When citing the hyperspectral imaging data, use the following format:
+Li, S., 2024. Data from: Hyperspectral Imaging Analysis for Early Detection of Tomato Bacterial Leaf Spot Disease. https://doi.org/10.15482/USDA.ADC/26046328.v2

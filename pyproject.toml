@@ -9,7 +9,7 @@ description = "Python toolkit starter for SmartAgriculture analytics."
 authors = [{ name = "SmartAgriculture Team" }]
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["google-cloud-storage"]
+dependencies = ["numpy", "pandas", "scikit-learn", "matplotlib", "scipy", "spectral", "google-cloud-storage", "jupyter"]
 
 [project.scripts]
 smart-agriculture = "smart_agriculture.cli:main"
