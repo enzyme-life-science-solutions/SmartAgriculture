@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from smart_agriculture import config, dataset_sync
+from smart_agriculture import config, dataset_sync, inventory
 from smart_agriculture.pipelines import gcs_utils
 
 
@@ -75,6 +75,21 @@ def main() -> None:
         help="Override the GCS prefix (default: %(default)s).",
     )
 
+    parser_inventory = subparsers.add_parser(
+        "parse-inventory",
+        help="Parse the hyperspectral inventory and generate metadata.",
+    )
+    parser_inventory.add_argument(
+        "--data-dir",
+        default=config.DATA_DIR,
+        help="Override the data directory (default: %(default)s).",
+    )
+    parser_inventory.add_argument(
+        "--out-dir",
+        default=config.OUT_DIR,
+        help="Override the output directory (default: %(default)s).",
+    )
+
     args = parser.parse_args()
 
     try:
@@ -90,6 +105,8 @@ def main() -> None:
                 bucket_name=args.bucket,
                 destination_prefix=args.destination_prefix,
             )
+        elif args.command == "parse-inventory":
+            inventory.parse_inventory(data_dir=args.data_dir, out_dir=args.out_dir)
         else:
             parser.print_help()
     except Exception as e:

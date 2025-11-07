@@ -112,6 +112,8 @@ services/
 - Escaped runtime variables in `cloudbuild.deploy.yaml` to prevent invalid Cloud Build substitutions (ISO/IEC 27001 integrity).
 - Introduced doc-driven task queue SOP, templates, and extractor script to keep documentation as the audit trail (IEC 62304, ISO 13485, ISO 14971, ISO/IEC 27001).
 - Authored `TASKS_AND_DOCS.md` as the unified entrypoint for documentation↔queue lifecycle to onboard agents consistently (IEC 62304, ISO 13485).
+- Hardened `parse_inventory.py` with config-driven paths, dataset citation, and compliance logging to preserve ISO 13485 / IEC 62304 traceability of the hyperspectral dataset.
+- Added dataset sync CLI + helper to push `data/tomato_leaf` into `GCS_BUCKET` using substitution-friendly settings, plus enzyme_tech shim so pytest covers GCS uploads end-to-end.
 
 ## Suggested Next Step
 - Pilot the doc-driven task extractor across active services and capture feedback for incremental automation hardening.
@@ -121,7 +123,7 @@ services/
 |---------|--------|
 | VariantEffectService | Deploy pipeline substitution fix applied |
 
-## Project Tree
+## Project Tree example:
 ```
 .
 ├── .github
