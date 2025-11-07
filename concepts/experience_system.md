@@ -1,0 +1,1 @@
+knowing how to minemize the cloud runs costs by coverage tests cousing expensive runs.

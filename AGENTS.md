@@ -36,6 +36,11 @@ SmartAgriculture is a single HSI research pipeline, not a multi-service mono-rep
 - Build SA (trigger SA) ≠ Runtime SA.
 - Each YAML/doc must include WHY comments tied to standards.
 
+## Testing Responsibilities (cost-aware)
+- `pytest tests/test_features_indices.py` – pure unit coverage for vegetation index math (fast, no data).
+- `pytest tests/test_check_env.py` – validates the Gemini pre-flight script without hitting GCP.
+- `python scripts/self_check.py` – end-to-end HSI validation; run before merging HSI-affecting changes.
+
 ## Naming Conventions
 | Context            | Convention        | Example                   | Rationale |
 |--------------------|------------------|---------------------------|-----------|
@@ -168,3 +173,4 @@ Persist chosen mode in `norm_mode_used` for audits.
 - Emit notifications when `self_check` reports FAIL.
 - Define a Vertex AI job template to automate the full pipeline.
 - Integrate Gemini evaluation to compare `self_check` PASS rate across runs.
+- Add automated detection for cost-heavy CLI retries (emit warnings when Gemini commands loop on known errors).

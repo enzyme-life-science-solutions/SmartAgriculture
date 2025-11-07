@@ -32,6 +32,11 @@ This document defines conventions for AI agents collaborating on the SmartAgricu
 - Build SA (trigger SA) ≠ Runtime SA.
 - Each YAML/doc must include WHY comments tied to standards.
 
+## Testing Responsibilities (cost-aware)
+- `pytest tests/test_features_indices.py` – keeps vegetation index math deterministic.
+- `pytest tests/test_check_env.py` – ensures the Gemini env pre-check behaves without making API calls.
+- `python scripts/self_check.py` – executes the HSI self-check harness before promoting builds.
+
 ## Naming Conventions
 | Context            | Convention        | Example                   | Rationale |
 |--------------------|------------------|---------------------------|-----------|
@@ -183,3 +188,4 @@ BUCKET=${PROJECT_ID}-smartagri
 - Emit notifications when `self_check` reports FAIL.
 - Define a Vertex AI job template to automate the full pipeline.
 - Integrate Gemini evaluation to compare `self_check` PASS rate across runs.
+- Add automated detection for cost-heavy CLI retries (warn when Gemini keeps retrying the same failure).

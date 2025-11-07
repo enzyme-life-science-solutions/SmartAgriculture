@@ -34,8 +34,9 @@ BLOCK
   exit 1
 fi
 
-if ! gcloud auth print-access-token >/dev/null 2>&1; then
-  cat <<'BLOCK'
+if [[ "${SKIP_GCLOUD_CHECK:-0}" != "1" ]]; then
+  if ! gcloud auth print-access-token >/dev/null 2>&1; then
+    cat <<'BLOCK'
 [Gemini CLI]
 status: BLOCKED
 reason: gcloud auth not active for this shell
@@ -45,7 +46,8 @@ actions:
 notes:
   - Gemini CLI relies on Application Default Credentials when no API key is set
 BLOCK
-  exit 1
+    exit 1
+  fi
 fi
 
 cat <<'BLOCK'
