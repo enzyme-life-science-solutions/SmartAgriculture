@@ -12,6 +12,8 @@ dist/
 build/
 *.egg-info/
 data/
+data_processed/
+reports/
 
 # IDE settings
 .idea/
