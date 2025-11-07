@@ -177,6 +177,13 @@ smart-agriculture
 
 The CLI currently emits placeholder insights from `configs/sample_config.json`. Replace it with connectors to BigQuery tables, Vertex AI models, or Pub/Sub topics as the pipelines mature.
 
+## Pre-flight check before running Gemini CLI
+```bash
+source .env
+scripts/check_env.sh
+```
+This prevents costly retry loops by ensuring the required environment variables and `gcloud` authentication are active before any Gemini CLI calls.
+
 ## How to run
 
 ```bash
