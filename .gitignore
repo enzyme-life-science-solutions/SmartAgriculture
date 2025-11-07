@@ -11,6 +11,8 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+
+# Local data + evidence buckets (stored in GCS, keep out of Git for ISO/IEC 27001)
 data/
 data_processed/
 reports/
