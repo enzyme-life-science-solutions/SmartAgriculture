@@ -26,15 +26,21 @@ LOGGER = logging.getLogger(__name__)
 def _determine_timepoint(filename: str) -> str:
     """
     Infer the sampling timepoint from the filename convention.
+    Maps "before inoculation" to "D0" to align with baseline rule.
     """
+    # IEC 62304: This function maps a raw filename to a controlled vocabulary.
+    if "before inoculation" in filename or "_bi_" in filename:
+        return "D0"
+
     if "2h" in filename:
         return "2h"
 
-    match = re.search(r"D(\d+)", filename)
+    match = re.search(r"(\d+)dai", filename)
     if match:
         return f"D{match.group(1)}"
 
-    return "before"
+    # Fallback for other cases, though the data format is expected to be consistent.
+    return "UNKNOWN"
 
 
 def parse_inventory(data_dir: Path = RAW_DATA_DIR, out_dir: Path = PROCESSED_DIR) -> Path:
@@ -61,23 +67,39 @@ def parse_inventory(data_dir: Path = RAW_DATA_DIR, out_dir: Path = PROCESSED_DIR
     metadata: List[Dict[str, Any]] = []
     for hdr_path in hdr_files:
         filename = hdr_path.name
+        lower_name = filename.lower()
+        upper_name = filename.upper()
 
-        sensor = "VISNIR" if "VISNIR" in filename else "SWIR"
-        is_ref = "cloth" in filename
-        timepoint = _determine_timepoint(filename)
+        if "VISNIR" in upper_name:
+            sensor = "VISNIR"
+        elif "SWIR" in upper_name:
+            sensor = "SWIR"
+        else:
+            sensor = "UNKNOWN"
+
+        is_ref = "cloth" in lower_name
+        timepoint = _determine_timepoint(lower_name)
+        bil_path = hdr_path.with_suffix(".bil")
+        if not bil_path.exists():
+            LOGGER.warning("Missing .bil pairing for %s", hdr_path)
 
         metadata.append(
             {
                 "hdr_path": str(hdr_path),
+                "bil_path": str(bil_path),
                 "sensor": sensor,
                 "is_ref": is_ref,
                 "timepoint": timepoint,
+                "file_name": filename,
             }
         )  # WHY: Structured metadata provides device history traceability (ISO 13485 §7.5).
 
     df = pd.DataFrame(metadata)
     csv_path = out_dir / "hsi_meta.csv"
     df.to_csv(csv_path, index=False)
+
+    d0_count = len(df[df["timepoint"] == "D0"])
+    LOGGER.info(f"{d0_count} rows identified as D0 baseline.")
 
     LOGGER.info("Generated %s with %d records", csv_path, len(df.index))
     print(f"Successfully generated {csv_path}")

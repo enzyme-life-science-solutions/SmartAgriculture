@@ -177,6 +177,24 @@ smart-agriculture
 
 The CLI currently emits placeholder insights from `configs/sample_config.json`. Replace it with connectors to BigQuery tables, Vertex AI models, or Pub/Sub topics as the pipelines mature.
 
+## How to run
+
+```bash
+python scripts/self_check.py
+```
+
+- **What/Why/Standard**: Executes the HSI self-check harness to ensure the parse→export flow remains reproducible (IEC 62304), detects calibration drift early (ISO 14971), and keeps evidence on local storage with no secret material (ISO/IEC 27001).
+- **Expected outputs**
+  - `data_proc/hsi_meta.csv` mirrored metadata for auditors.
+  - ≥3 `data_processed/*_spectrum.csv` files with normalized VISNIR/SWIR spectra.
+  - `reports/trace_log.txt` appended with a `self_check` line documenting the run.
+  - Console table summarizing meta rows, sensor counts, timepoints, and pass/fail status.
+- **Common failures and fixes**
+  - Empty `data/tomato_leaf`: populate the raw HSI folders with matching `.hdr/.bil` pairs and rerun.
+  - Missing cloth captures: acquire cloth reference files so normalization can keep VISNIR/SWIR means in range.
+  - Non-monotonic wavelengths or NaN reflectance: inspect the offending `_spectrum.csv` file for corrupt ENVI headers.
+  - Fewer than three spectra: verify the export step produced both sensor families and that filenames end with `_spectrum.csv`.
+
 ## Compliance Notes
 - Least privilege: Separate build and runtime service accounts; runtime SA injected via substitutions (ISO/IEC 27001).
 - Traceability: Commit SHA → artifact digest → deployed DAG/container version (IEC 62304, ISO 13485).

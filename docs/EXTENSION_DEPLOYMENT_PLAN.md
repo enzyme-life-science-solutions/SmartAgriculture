@@ -33,3 +33,10 @@ gemini export
 gemini features
 gemini train
 ```
+
+## Infrastructure Enhancements
+
+The following infrastructure enhancements have been implemented:
+
+- **Data Documentation**: `data/README.md` and `data_processed/README.md` have been created to provide clear documentation for raw and processed hyperspectral data, respectively. These documents adhere to relevant standards (IEC 62304, ISO 14971, ISO/IEC 27001/27018/27701) for traceability, risk management, and security.
+- **Cloud Sync Script**: A `scripts/sync_data.sh` script has been added to facilitate two-way synchronization of `data/` and `data_processed/` folders with Google Cloud Storage buckets. This script provides a simple command-line interface for uploading and downloading data, enhancing data management and collaboration.

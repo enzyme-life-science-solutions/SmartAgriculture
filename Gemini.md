@@ -1,32 +1,22 @@
 # Agents Guide
 
-<!-- What changed: Added rules for inline rationale comments, substitution
-     naming, and clarified Build vs Runtime SA separation to meet 27001/13485/62304. -->
+<!-- What changed: Guidance originated under GenomeServices; mirrored here so
+     SmartAgriculture agents follow the same 27001/13485/62304 controls. -->
 
-This document defines conventions for AI agents collaborating on this repository.
+This document defines conventions for AI agents collaborating on the SmartAgriculture repository (carrying forward GenomeServices standards).
 
-## Microservices Architecture Rules
-- Services live under `services/<name>`.
-- Each service contains:
-  - `src/` – application code
-  - `tests/` – pytest suite
-  - `docs/` – service documentation
-  - `Dockerfile` – container definition
-
-## Folder Structure Template
-```
-services/
-└── <ServiceName>/
-    ├── src/
-    ├── tests/
-    ├── docs/
-    └── Dockerfile
-```
+## Repository Layout
+- `data/` – raw HSI (`.hdr/.bil`).
+- `data_processed/` – derived CSV artifacts.
+- `scripts/` – operational helpers (parse/export/self_check/sync).
+- `src/smart_agriculture/` – shared config + libraries.
+- `docs/`, `notebooks/`, `tests/`, `build/`, `remote-kernel/`, `test_env/` – documentation, research, validation, and tooling workspaces.
 
 ## Agent Responsibilities
 - Maintain documentation and follow coding standards.
 - Run `pytest` before committing.
 - Update this file with progress notes and next steps.
+- Keep TODO entries synchronized across AGENTS.md and GEMINI.md (#TODO rule) so agents see a single source of truth.
 - Ensure work aligns with IEC 62304, ISO 13485 and ISO/IEC 27001.
 - Add inline comments explaining WHY decisions are made, with references to
   applicable standards when relevant (e.g., 27001, 13485, 62304).
@@ -86,6 +76,7 @@ services/
   - **Rationale:** Enforces controlled release management (IEC 62304, ISO 13485), separating the act of building from the act of deploying. This prevents untested code from reaching production environments.
 
 - **Roadmap:** Future iterations will integrate secrets from Secret Manager and assign least-privilege service accounts during deployment (ISO/IEC 27001).
+- **Post-merge automation:** Add GitHub Actions / Vertex CI triggers that run the Gemini self-check prompts after merges to keep evidence fresh.
 
 ## Branch Status
 | Branch | Purpose |
@@ -111,6 +102,8 @@ services/
 - Escaped runtime variables in `cloudbuild.deploy.yaml` to prevent invalid Cloud Build substitutions (ISO/IEC 27001 integrity).
 - Introduced doc-driven task queue SOP, templates, and extractor script to keep documentation as the audit trail (IEC 62304, ISO 13485, ISO 14971, ISO/IEC 27001).
 - Authored `TASKS_AND_DOCS.md` as the unified entrypoint for documentation↔queue lifecycle to onboard agents consistently (IEC 62304, ISO 13485).
+- Hardened `parse_inventory.py` with config-driven paths, dataset citation, and compliance logging to preserve ISO 13485 / IEC 62304 traceability of the hyperspectral dataset.
+- Added dataset sync CLI + helper to push `data/tomato_leaf` into `GCS_BUCKET` using substitution-friendly settings, plus enzyme_tech shim so pytest covers GCS uploads end-to-end.
 
 ## Suggested Next Step
 - Pilot the doc-driven task extractor across active services and capture feedback for incremental automation hardening.
@@ -120,43 +113,73 @@ services/
 |---------|--------|
 | VariantEffectService | Deploy pipeline substitution fix applied |
 
-## Project Tree
+## Project Tree (excerpt)
 ```
-.
-├── .github
-│   └── workflows
-│       └── ci.yml
-├── .gitignore
+SmartAgriculture/
 ├── AGENTS.md
-├── LICENSE
+├── GEMINI.md
 ├── README.md
-├── clouddeploy
-│   ├── pipeline.yaml
-│   └── targets.yaml
-├── docs
-│   ├── COMPLIANCE_MATRIX.md
-│   ├── PROJECT_INSTRUCTIONS.md
-│   └── STANDARDS_REFERENCES.md
 ├── TASKS_AND_DOCS.md
-└── services
-    ├── __init__.py
-    └── VariantEffectService
-        ├── Dockerfile
-        ├── __init__.py
-        ├── cloudbuild.deploy.yaml
-        ├── cloudbuild.pr.yaml
-        ├── cloudbuild.yaml
-        ├── docs
-        │   └── README.md
-        ├── requirements.txt
-        ├── src
-        │   ├── __init__.py
-        │   └── main.py
-        └── tests
-            ├── __init__.py
-            └── test_main.py
+├── data/
+├── data_processed/
+├── docs/
+├── notebooks/
+├── scripts/
+│   ├── parse_inventory.py
+│   ├── export_spectra.py
+│   ├── self_check.py
+│   └── sync_data.sh
+├── src/
+│   └── smart_agriculture/
+├── tests/
+└── requirements.txt
 ```
 
 ## Data Citation Style
 When citing the hyperspectral imaging data, use the following format:
 Li, S., 2024. Data from: Hyperspectral Imaging Analysis for Early Detection of Tomato Bacterial Leaf Spot Disease. https://doi.org/10.15482/USDA.ADC/26046328.v2
+
+---
+
+# Gemini Code Assist — Project Notes
+
+## Purpose
+Automate generation and validation of the Smart Agriculture hyperspectral (HSI) pipeline via Gemini Code Assist in VS Code or the CLI.
+
+## Core Prompts (docs/prompts.md)
+1. ✅ Config & inventory (`config.py`, `scripts/parse_inventory.py`)
+2. ✅ Spectral normalization (`scripts/export_spectra.py`)
+3. ✅ Self-check validation (`scripts/self_check.py`)
+4. 🔄 Feature extraction (`scripts/features.py`)
+5. 🔄 ML training notebook (`notebooks/02_model_v1.ipynb`)
+
+## Usage
+**VS Code:** `Ctrl+I` → *Gemini: Run Prompt* → pick the phase prompt block.  
+**CLI:**
+```bash
+gemini projects set smartagriculture
+gemini run --file prompts/export_spectra.txt
+```
+
+### Environment
+```
+PROJECT_ID=<gcp-project>
+BUCKET=${PROJECT_ID}-smartagri
+```
+
+### Cloud Integration
+- `scripts/sync_data.sh up|down` keeps `/data` ↔ `/data_processed` in sync.
+- Gemini CLI can call `gcloud storage rsync` once the user is authenticated.
+
+### Standards Reference
+- IEC 62304 – lifecycle traceability for each generated artifact.
+- ISO 14971 – calibration/risk checks baked into prompts.
+- ISO/IEC 27001 – no secrets in prompts; use substitutions and env vars.
+
+## TODO
+- Add automatic Gemini run triggers post-merge (GitHub Actions / Vertex CI).
+- Implement `scripts/features.py` agent plus Gemini prompt coverage for feature extraction.
+- Add Looker dashboard prompt + upload agent so analytics stay aligned with data drops.
+- Emit notifications when `self_check` reports FAIL.
+- Define a Vertex AI job template to automate the full pipeline.
+- Integrate Gemini evaluation to compare `self_check` PASS rate across runs.
